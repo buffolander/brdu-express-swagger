@@ -1,0 +1,41 @@
+{
+  "name": "@brdu/express-swagger",
+  "description": "Express middleware handles routing, request validation and standardized responses based on Swagger (OAS 2) YAML specification file",
+  "version": "1.0.0",
+  "author": "buffolander <bruno@brdu.net>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/buffolander/brdu-express-swagger.git"
+  },
+  "keywords": [
+    "express",
+    "middleware",
+    "swagger",
+    "oas2",
+    "validation"
+  ],
+  "dependencies": {
+    "ajv": "^6.12.4",
+    "js-yaml": "^3.14.0",
+    "json-schema-defaults": "^0.4.0",
+    "json-schema-deref-sync": "^0.13.0",
+    "lodash": "^4.17.20"
+  },
+  "devDependencies": {
+    "eslint": "^7.7.0",
+    "eslint-config-airbnb-base": "^14.2.0",
+    "eslint-plugin-import": "^2.22.0",
+    "jest": "^26.4.2"
+  },
+  "main": "src/index.js",
+  "files": [
+    "LICENSE",
+    "README.md",
+    "src/"
+  ],
+  "scripts": {
+    "lint": "eslint .",
+    "test": "jest"
+  }
+}
