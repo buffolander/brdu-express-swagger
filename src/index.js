@@ -21,13 +21,11 @@ const config = ({
   swaggerPath: _swaggerPath,
   controllersPath: _controllersPath,
   fileNameCasing: _fileNameCasing = 'KEBAB', // CAMEL, SNAKE
-  reqAppendTimestamp: _reqAppendTimestamp = true,
 }) => {
   if (!_swaggerPath) throw ['Required Property: swaggerPath']
   swaggerPath = _swaggerPath
   controllersPath = _controllersPath
   fileNameCasing = _fileNameCasing
-  reqAppendTimestamp = _reqAppendTimestamp
 
   return expressSwagger()
 }
