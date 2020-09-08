@@ -8,11 +8,10 @@ const validator = require('./validator')
 let swaggerPath, controllersPath, fileNameCasing
 
 const expressSwagger = () => {
+  const specification = parseYaml(swaggerPath)
   return {
-    routes: flow(
-      () => parseYaml(swaggerPath),
-      (specification) => resolveRoutes(specification, controllersPath, fileNameCasing),
-    )(),
+    specification,
+    routes: resolveRoutes(specification, controllersPath, fileNameCasing),
     validator,
   }
 }
