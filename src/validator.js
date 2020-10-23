@@ -23,6 +23,24 @@ const validator = (req, res, next, specParameters, specResponses) => {
     },
   })
 
+  const requiredQueryParams = specParameters
+    .filter(({ in: _in, required }) => _in === 'query' && required)
+  const missingQueryParams = requiredQueryParams
+    .map(({ name: queryParamLabel }) => ({
+      queryParam: queryParamLabel,
+      value: req.query[queryParamLabel],
+    }))
+    .filter(queryParam => !queryParam.value)
+  if (missingQueryParams.length) return responseEmiter({
+    res,
+    code: 400,
+    errors: {
+      required: {
+        queryParams: missingQueryParams.map(({ queryParam }) => queryParam),
+      },
+    },
+  })
+
   const bodySchema = specParameters
     .find(param => param.in === 'body')
   if (bodySchema && empty(req.body)) return responseEmiter({
