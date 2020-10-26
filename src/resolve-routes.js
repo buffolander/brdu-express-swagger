@@ -11,9 +11,10 @@ const resolveRoutes = (swaggerJson, controllersPath, fileNameCasing) => {
   try {
     const routes = []
     Object.keys(paths).map(path => {
+      const expressPath = path.split('{').join(':').split('}').join('')
       Object.keys(paths[path]).map(method => routes.push({
-        path,
-        fullPath: (basePath || '').concat(path),
+        path: expressPath,
+        fullPath: (basePath || '').concat(expressPath),
         method,
         parameters: paths[path][method]['parameters'],
         responses: paths[path][method]['responses'],

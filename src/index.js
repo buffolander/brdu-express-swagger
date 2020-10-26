@@ -1,14 +1,11 @@
-const flow = require('lodash/flow')
-const path = require('path')
-
 const parseYaml = require('./parse-yaml')
 const resolveRoutes = require('./resolve-routes')
 const validator = require('./validator')
 
 let swaggerPath, controllersPath, fileNameCasing
 
-const expressSwagger = () => {
-  const specification = parseYaml(swaggerPath)
+const expressSwagger = async () => {
+  const specification = await parseYaml(swaggerPath)
   return {
     specification,
     routes: resolveRoutes(specification, controllersPath, fileNameCasing),
@@ -31,6 +28,8 @@ const config = ({
 
 module.exports = config
 /*
+const path = require('path')
+
 const test = await config({
   swaggerPath: path.resolve(__dirname, '../tests/swagger-mock.yaml'),
   controllersPath: path.resolve(__dirname, '../tests/mocked-controllers'),
