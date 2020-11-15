@@ -1,6 +1,9 @@
 const parseYaml = require('./parse-yaml')
 const resolveRoutes = require('./resolve-routes')
+
 const validator = require('./validator')
+
+const { requestLogger: logger } = require('./logger')
 
 let swaggerPath, controllersPath, fileNameCasing
 
@@ -10,6 +13,7 @@ const expressSwagger = async () => {
     specification,
     routes: resolveRoutes(specification, controllersPath, fileNameCasing),
     validator,
+    logger,
   }
 }
 
