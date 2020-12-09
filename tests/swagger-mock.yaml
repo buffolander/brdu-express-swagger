@@ -27,7 +27,7 @@ paths:
           $ref: "#/responses/200_userCreate"
         400:
           $ref: "#/responses/400"
-  /users/:user_id:
+  /users/{user_id}:
     get:
       operationId: usersGet
       summary: >-
