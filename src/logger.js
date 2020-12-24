@@ -14,10 +14,12 @@ const reqLogProperties = [
   'body',
 ]
 
-module.exports.requestLogger = (req, res, next) => {
+const requestLogger = (req, res, next) => {
   reqLogProperties.map((prop) => {
     const message = JSON.stringify(parse(stringify(req[prop])))
     console.info(`http-req ${prop}`, message)
   })
   return next()
 }
+
+module.exports = requestLogger
