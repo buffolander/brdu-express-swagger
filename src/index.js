@@ -1,14 +1,23 @@
-const parseYaml = require('./parse-yaml')
-const resolveRoutes = require('./resolve-routes')
+const parseYaml = require('./yaml-parser')
+const resolveRoutes = require('./route-resolver')
 
+const logger = require('./logger')
 const validator = require('./validator')
-
-const { requestLogger: logger } = require('./logger')
 
 let swaggerPath, controllersPath, fileNameCasing
 
-const expressSwagger = async () => {
+const initAsync = async () => {
   const specification = await parseYaml(swaggerPath)
+  return {
+    specification,
+    routes: resolveRoutes(specification, controllersPath, fileNameCasing),
+    validator,
+    logger,
+  }
+}
+
+const initSync = () => {
+  const specification = require(swaggerPath)
   return {
     specification,
     routes: resolveRoutes(specification, controllersPath, fileNameCasing),
@@ -27,16 +36,7 @@ const config = ({
   controllersPath = _controllersPath
   fileNameCasing = _fileNameCasing
 
-  return expressSwagger()
+  return { initYAML: initAsync, initJSON: initSync }
 }
 
 module.exports = config
-/*
-const path = require('path')
-
-const test = await config({
-  swaggerPath: path.resolve(__dirname, '../tests/swagger-mock.yaml'),
-  controllersPath: path.resolve(__dirname, '../tests/mocked-controllers'),
-})
-console.info(test)
- */
