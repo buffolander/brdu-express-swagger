@@ -1,11 +1,8 @@
 const path = require('path')
 
-const expressSwagger = require('../src/index')({
-  swaggerPath: path.resolve(__dirname, './swagger-mock.yaml'),
-  controllersDirectory: path.resolve(__dirname, './mocked-controllers'),
+const { initJSON } = require('../src/index')({
+  swaggerPath: path.resolve(__dirname, './swagger-mock.js'),
+  controllersPath: path.resolve(__dirname, './mocked-controllers'),
 })
 
-expressSwagger({
-  path: '/v1/users',
-  method: 'post',
-}, {}) // ?
+initJSON()// ?
