@@ -1,11 +1,22 @@
-/* const Policies = {
-  uidVariable: 'user_id',
-  [path]: {
-    authorizedRoles: Array, enum: ['*', 'self','{org_type}:{role}', 'service_company:admin'],
-    delegationVariable: String, e.g. 'organization_id' or 'user_id'
-    },
+/*
+  authorizerSettings: {
+    contextUserVariable: 'user_id',
+    contextOrganizationsArray: 'organizations',
+    policies: [{
+      paths: [
+        '/service-companies/:profile-id',
+      ],
+      methods: [
+        'PUT',
+        'PATCH',
+      ],
+      authorizedRoles: [ // enum: ['*', 'self','{org_type}:{role}', 'service_company:admin'],
+        'service_company:admin',
+      ],
+      delegation: 'profile_id',
+    }],
   },
-} */
+*/
 
 const getContext = (req) => {
   const context = req.get('X-Endpoint-API-UserInfo')
@@ -18,55 +29,65 @@ const getContext = (req) => {
   return parsedContext
 }
 
-const verifySelfOnly = (req, context, pathPolicies) => {
-  const { delegationVariable = 'na', uidVariable = 'user_id' } = pathPolicies
-  return (req.params[delegationVariable] || req.query[delegationVariable]) === context[uidVariable]
+const verifySelfOnly = (req, context, policy, uid) => {
+  const { delegation } = policy
+  if (!delegation) return false
+  return (req.params[delegation] || req.query[delegation]) === context[uid]
 }
 
-const verifyRoles = (req, context, pathPolicies) => {
-  const { authorizedRoles, delegationVariable } = pathPolicies
-  const delegationValue = delegationVariable
-    ? `:${(req.params[delegationVariable] || req.query[delegationVariable])}`
+const verifyRoles = (req, context, policy, orgs) => {
+  const { authorizedRoles, delegation } = policy
+  const delegationValue = delegation
+    ? `:${(req.params[delegation] || req.query[delegation])}`
     : '*'
-  const rolesInContext = context.organizations.reduce((acc, cur) => ([
-    ...acc,
-    ...(cur.role
-      ? [[
-        cur.organization_type,
-        cur.role,
-        delegationVariable ? cur.organization_id : '*',
-      ].join(':')]
-      : []
-    ),
-    ...(cur.roles
-      ? cur.roles.map((role) => ([
-        cur.organization_type,
-        role,
-        delegationVariable ? cur.organization_id : '*',
-      ].join(':')))
-      : []
-    ),
-  ]), [])
-  const rolesInPolicy = authorizedRoles.map((role) => `${role}${delegationValue}`)
-  return rolesInPolicy.find((role) => rolesInContext.includes(role))
+  const contextRoles = context[orgs]
+    .reduce((acc, cur) => ([
+      ...acc,
+      ...(cur.role
+        ? [[
+          cur.organization_type,
+          cur.role,
+          delegation ? cur.organization_id : '*',
+        ].join(':')]
+        : []
+      ),
+      ...(cur.roles
+        ? cur.roles.map((role) => ([
+          cur.organization_type,
+          role,
+          delegation ? cur.organization_id : '*',
+        ].join(':')))
+        : []
+      ),
+    ]), [])
+  const policyRoles = authorizedRoles
+    .map((role) => `${role}${delegationValue}`)
+  const intersectArrays = policyRoles.find((role) => contextRoles.includes(role))
+  return typeof intersectArrays !== 'undefined'
 }
 
-const authorizer = (req, res, next, policies) => {
+const authorizer = (req, res, next, authorizerSettings) => {
   const context = getContext(req)
   req.context = context
-  const { uidVariable = 'user_id' } = policies
+  const {
+    contextUserVariable: uid = 'user_id',
+    contextOrganizationsArray: orgs = 'organizations',
+    policies,
+  } = authorizerSettings
 
-  if (!context[uidVariable]) return next() // service-to-service request
-  const pathPolicies = policies[req.path]
-  if (!pathPolicies || pathPolicies.authorizedRoles.includes('*')) return next()
+  if (!context[uid]) return next() // service-to-service request
 
-  if (pathPolicies.authorizedRoles === 'self') return verifySelfOnly(req, context, pathPolicies)
-    ? next()
-    : res.sendStatus(403)
+  const policy = policies.find((policy) => (
+    policy.paths.includes(req.path) && policy.methods.includes(req.method)
+  ))
+  if (!policy || policy.authorizedRoles.includes('*')) return next()
 
-  return verifyRoles(req, context, pathPolicies)
-    ? next()
-    : res.sendStatus(403)
+  const gatekeepers = [
+    verifyRoles(req, context, policy, orgs),
+    ...(policy.authorizedRoles.includes('self') ? [verifySelfOnly(req, context, policy, uid)] : []),
+  ]
+  if (gatekeepers.includes(true)) return next()
+  return res.sendStatus(403)
 }
 
 module.exports = authorizer
