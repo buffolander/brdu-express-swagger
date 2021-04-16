@@ -54,7 +54,7 @@ const verifyRoles = (req, context, pathPolicies) => {
 const authorizer = (req, res, next, policies) => {
   const context = getContext(req)
   req.context = context
-  const { uidVariable = 'user_id' } = pathPolicies
+  const { uidVariable = 'user_id' } = policies
 
   if (!context[uidVariable]) return next() // service-to-service request
   const pathPolicies = policies[req.path]
