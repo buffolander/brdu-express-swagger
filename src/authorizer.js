@@ -1,4 +1,5 @@
 /* const Policies = {
+  uidVariable: 'user_id',
   [path]: {
     authorizedRoles: Array, enum: ['*', 'self','{org_type}:{role}', 'service_company:admin'],
     delegationVariable: String, e.g. 'organization_id' or 'user_id'
@@ -18,8 +19,8 @@ const getContext = (req) => {
 }
 
 const verifySelfOnly = (req, context, pathPolicies) => {
-  const { delegationVariable = 'na' } = pathPolicies
-  return (req.params[delegationVariable] || req.query[delegationVariable]) === context.uid
+  const { delegationVariable = 'na', uidVariable = 'user_id' } = pathPolicies
+  return (req.params[delegationVariable] || req.query[delegationVariable]) === context[uidVariable]
 }
 
 const verifyRoles = (req, context, pathPolicies) => {
@@ -53,8 +54,9 @@ const verifyRoles = (req, context, pathPolicies) => {
 const authorizer = (req, res, next, policies) => {
   const context = getContext(req)
   req.context = context
+  const { uidVariable = 'user_id' } = pathPolicies
 
-  if (!context.uid) return next() // service-to-service request
+  if (!context[uidVariable]) return next() // service-to-service request
   const pathPolicies = policies[req.path]
   if (!pathPolicies || pathPolicies.authorizedRoles.includes('*')) return next()
 
