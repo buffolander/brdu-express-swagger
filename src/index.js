@@ -2,6 +2,7 @@ const parseYaml = require('./yaml-parser')
 const resolveRoutes = require('./route-resolver')
 
 const logger = require('./logger')
+const authorizer = require('./authorizer')
 const validator = require('./validator')
 
 let swaggerPath, controllersPath, fileNameCasing
@@ -13,6 +14,7 @@ const initAsync = async () => {
     routes: resolveRoutes(specification, controllersPath, fileNameCasing),
     validator,
     logger,
+    authorizer,
   }
 }
 
@@ -23,6 +25,7 @@ const initSync = () => {
     routes: resolveRoutes(specification, controllersPath, fileNameCasing),
     validator,
     logger,
+    authorizer,
   }
 }
 
