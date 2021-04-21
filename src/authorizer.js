@@ -17,6 +17,7 @@
     }],
   },
 */
+const get = require('lodash/get')
 
 const getContext = (req) => {
   const context = req.get('X-Endpoint-API-UserInfo')
@@ -38,7 +39,7 @@ const verifySelfOnly = (req, context, policy, uid) => {
 const verifyRoles = (req, context, policy, orgs) => {
   const { authorizedRoles, delegation } = policy
   const delegationValue = delegation
-    ? `:${(req.params[delegation] || req.query[delegation])}`
+    ? `:${(req.params[delegation] || req.query[delegation] || get(req.body || {}, delegation))}`
     : '*'
   const contextRoles = context[orgs]
     .reduce((acc, cur) => ([
