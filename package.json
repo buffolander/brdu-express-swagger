@@ -1,7 +1,7 @@
 {
   "name": "@brdu/express-swagger",
   "description": "Express middleware handles routing, request validation and standardized responses based on Swagger (OAS 2) YAML specification file",
-  "version": "1.3.4",
+  "version": "1.3.5",
   "author": "buffolander <bruno@brdu.net>",
   "license": "MIT",
   "repository": {
