@@ -40,7 +40,7 @@ const verifyRoles = (req, context, policy, orgs) => {
   const { authorizedRoles, delegation } = policy
   const delegationValue = delegation
     ? `:${(req.params[delegation] || req.query[delegation] || get(req.body || {}, delegation))}`
-    : '*'
+    : ':*'
   const contextRoles = context[orgs]
     .reduce((acc, cur) => ([
       ...acc,
