@@ -16,8 +16,8 @@ const resolveRoutes = (swaggerJson, controllersPath, fileNameCasing) => {
         path: expressPath,
         fullPath: (basePath || '').concat(expressPath),
         method,
-        parameters: paths[path][method]['parameters'],
-        responses: paths[path][method]['responses'],
+        parameters: paths[path][method]['parameters'] || [],
+        responses: paths[path][method]['responses'] || [],
         controller: (() => {
           const operationId = paths[path][method]['operationId']
           const functionName = `${controllersPath}/${caseChange[fileNameCasing](operationId)}`
